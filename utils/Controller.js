@@ -34,8 +34,14 @@ export default class Controller extends EventEmitter {
     let timer = null;
     return (event) => {
       if (timer === null) {
-        const scrollDown = this.isScrollingDown(event);
-        this.emit(scrollDown ? DOWN : UP);
+        const isVerticalScrolling = Math.abs(event.wheelDeltaY) >= Math.abs(event.wheelDeltaX);
+        if (isVerticalScrolling) {
+          const scrollDown= this.isScrollingDownOrRight(event.wheelDeltaY);
+          this.emit(scrollDown ? DOWN : UP);
+        } else {
+          const scrollRight= this.isScrollingDownOrRight(event.wheelDeltaX);
+          this.emit(scrollRight ? RIGHT : LEFT);
+        }
       }
   
       clearTimeout(timer);
@@ -45,7 +51,7 @@ export default class Controller extends EventEmitter {
     }
   }
 
-  isScrollingDown(event) {
-    return event.wheelDelta > 0;
+  isScrollingDownOrRight(delta) {
+    return delta > 0;
   }
 }
