@@ -1,19 +1,55 @@
+import store from '../store/index.js';
+import { getActiveIndex } from '../store/reducers/main.js';
+
 export default class ImageContainer {
-  constructor(parent, url, isActive) {
+  constructor(parent, url, index) {
     this.parent = parent;
-    this.url = url
-    this.isActive = isActive;
+    this.url = url;
+    this.index = index;
+    this.el = null;
+
+    store.subscribe(this.updateFromStore.bind(this));
+  }
+
+  isActive(index) {
+    return index === this.index;
+  }
+
+  shouldUpdate() {
+    const oldIsActive = this.isActive(this.activeIndex)
+    const newIsActive = this.isActive(getActiveIndex(store.getState()));
+    if ((this.activeIndex || this.activeIndex === 0) && oldIsActive !== newIsActive) {
+      return true;
+    }
+  }
+
+  updateFromStore() {
+    const shouldUpdate = this.shouldUpdate();
+    this.activeIndex = getActiveIndex(store.getState());
+    if (shouldUpdate) {
+      this.addActiveStyles();
+    }
+  }
+
+  addActiveStyles() {
+    if (this.isActive(this.activeIndex)) {
+      return this.el.classList.add('active');
+    }
+
+    this.el.classList.remove('active');
+  }
+
+  remove() {
+    this.el.remove();
   }
 
   render() {
-    const img = document.createElement('img');
-    img.classList.add('image-wrapper');
-    img.src = this.url
+    this.el = document.createElement('img');
+    this.el.classList.add('image-wrapper');
+    this.el.src = this.url
 
-    if (this.isActive) {
-      img.classList.add('active');
-    }
+    this.addActiveStyles();
 
-    this.parent.append(img);
+    this.parent.append(this.el);
   }
 }

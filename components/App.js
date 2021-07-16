@@ -2,9 +2,10 @@ import ImageContainer from './ImageContainer.js';
 import Controller from '../utils/Controller.js';
 import store from '../store/index.js';
 import { UP, DOWN, RIGHT, LEFT, PER_ROW } from '../constants.js';
-import { getImages, getActiveIndex } from '../store/reducers/index.js';
-import { updateActiveIndex, getImagesData } from '../store/actions/index.js';
-import { theSameArrayItems } from '../utils/index.js';
+import { getActiveIndex } from '../store/reducers/main.js';
+import { getImages } from '../store/reducers/images.js';
+import { updateActiveIndex } from '../store/actions/main.js';
+import { getImagesData } from '../store/actions/images.js';
 
 export default class App {
   constructor(root) {
@@ -12,8 +13,8 @@ export default class App {
     this.container = null;
     this.controller = new Controller();
 
-    store.dispatch(getImagesData());
     store.subscribe(this.updateFromStore.bind(this));
+    store.dispatch(getImagesData());
     this.addControllerHandlers();
   }
 
@@ -28,18 +29,18 @@ export default class App {
     }
   }
 
-  shouldUpdate(newState) {
-    console.log(newState.images, this.images);
-    if (!theSameArrayItems(newState.images, this.images)) {
-      console.log('need rerender');
-      return true;
+  shouldRerender() {
+    if (store.getState().images && this.images) {
+      console.log('shouldRerender: ', getImages(store.getState()) !== this.images);
+      return getImages(store.getState()) !== this.images;
     }
   }
 
-  updateFromStore(newState) {
+  updateFromStore() {
+    const shouldRerender = this.shouldRerender();
     this.images = getImages(store.getState());
     this._activeIndex = getActiveIndex(store.getState());
-    if (this.shouldUpdate(newState)) {
+    if (shouldRerender) {
       this.render();
     }
   }
@@ -87,7 +88,7 @@ export default class App {
     this.container = document.createElement('div');
     this.container.classList.add('container');
     this.images.forEach((image, index) => {
-      new ImageContainer(this.container, image, index === this.activeIndex).render();
+      new ImageContainer(this.container, image, index).render();
     });
     this.root.append(this.container);
   }

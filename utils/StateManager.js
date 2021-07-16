@@ -13,7 +13,7 @@ export default function createStore(reducer, state) {
   }
 
   function subscribe(cb) {
-    cb(state); // imediatly call cb to give init data
+    cb(); // imediatly call cb to give init data
     callbacks.push(cb);
     return () => callbacks = callbacks.filter(callback => callback !== cb);
   }

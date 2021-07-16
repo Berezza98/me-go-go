@@ -1,11 +1,6 @@
-import { UPDATE_ACTIVE_INDEX, UPDATE_IMAGES } from '../storeConsts.js';
+import { UPDATE_IMAGES } from '../storeConsts.js';
 import { getRecentPhotosXHR } from '../../api.js';
-import { getCurrentPage } from '../reducers/index.js';
-
-export const updateActiveIndex = payload => ({
-  type: UPDATE_ACTIVE_INDEX,
-  payload, 
-});
+import { getCurrentPage } from '../reducers/main.js';
 
 export const updateImages = payload => ({
   type: UPDATE_IMAGES,
