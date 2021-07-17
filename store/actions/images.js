@@ -11,5 +11,4 @@ export const getImagesData = () => async (dispatch, getState) => {
   const page = getCurrentPage(getState());
   const data = await getRecentPhotosXHR(page);
   dispatch(updateImages(data.photos.photo.map(photoObj => photoObj.url_q)));
-  console.log(data);
 }
