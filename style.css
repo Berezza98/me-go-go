@@ -23,7 +23,7 @@ body {
 }
 
 .image-wrapper {
-    height: 160px;
+    height: 340px;
     width: calc((1280px - 40px) / 5 - 10px);
     background: rgba(0,0,0,0.2);
     margin: 10px 5px;

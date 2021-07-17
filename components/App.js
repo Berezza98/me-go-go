@@ -1,17 +1,18 @@
 import ImageContainer from './ImageContainer.js';
 import Controller from '../utils/Controller.js';
 import store from '../store/index.js';
-import { UP, DOWN, RIGHT, LEFT, PER_ROW } from '../constants.js';
-import { getActiveIndex } from '../store/reducers/main.js';
-import { getImages } from '../store/reducers/images.js';
-import { updateActiveIndex } from '../store/actions/main.js';
+import { UP, DOWN, RIGHT, LEFT, PER_ROW, ROW_HEIGHT } from '../constants.js';
+import { getActiveIndex, getActiveRow } from '../store/reducers/main.js';
+import { getImages, getImagesRowCount } from '../store/reducers/images.js';
+import { updateActiveIndex, increaseCurrentPage } from '../store/actions/main.js';
 import { getImagesData } from '../store/actions/images.js';
 
 export default class App {
   constructor(root) {
     this.root = root;
-    this.container = null;
+    this.el = null;
     this.controller = new Controller();
+    this.scrollCounter = 0;
 
     store.subscribe(this.updateFromStore.bind(this));
     store.dispatch(getImagesData());
@@ -29,9 +30,16 @@ export default class App {
     }
   }
 
+  get activeRow() {
+    return getActiveRow(store.getState());
+  }
+
+  get rowCount() {
+    return getImagesRowCount(store.getState());
+  }
+
   shouldRerender() {
     if (store.getState().images && this.images) {
-      console.log('shouldRerender: ', getImages(store.getState()) !== this.images);
       return getImages(store.getState()) !== this.images;
     }
   }
@@ -56,40 +64,54 @@ export default class App {
     if (this.activeIndex === 0 || (this.activeIndex + 1) % PER_ROW !== 0) {
       this.activeIndex += 1;
     }
-    console.log(this.activeIndex);
   }
 
   handleLeft() {
     if (this.activeIndex > 0 && this.activeIndex % PER_ROW !== 0) {
       this.activeIndex -= 1;
     }
-    console.log(this.activeIndex);
   }
 
   handleDown() {
     if (this.images[this.activeIndex + PER_ROW] !== undefined) {
       this.activeIndex += PER_ROW;
+      this.scrollCounter++;
+      this.scroll();
+
+      if (this.activeRow >= this.rowCount - 2) {
+        store.dispatch(increaseCurrentPage());
+        store.dispatch(getImagesData());
+      }
     }
-    console.log(this.activeIndex);
   }
 
   handleUp() {
     if (this.images[this.activeIndex - PER_ROW] !== undefined) {
       this.activeIndex -= PER_ROW;
+      this.scrollCounter--;
+      this.scroll();
     }
-    console.log(this.activeIndex);
+  }
+
+  scroll(immediately) {
+    this.el.scrollTo({
+      top: this.scrollCounter * ROW_HEIGHT,
+      left: 0,
+      behavior: immediately ? 'auto' : 'smooth'
+    });
   }
 
   render() {
-    if (this.container) {
-      this.container.remove();
+    if (this.el) {
+      this.el.remove();
     }
 
-    this.container = document.createElement('div');
-    this.container.classList.add('container');
+    this.el = document.createElement('div');
+    this.el.classList.add('container');
     this.images.forEach((image, index) => {
-      new ImageContainer(this.container, image, index).render();
+      new ImageContainer(this.el, image, index).render();
     });
-    this.root.append(this.container);
+    this.root.append(this.el);
+    this.scroll(true);
   }
 }
