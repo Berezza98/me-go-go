@@ -1,6 +1,6 @@
 import {
   UPDATE_ACTIVE_INDEX, UPDATE_CURRENT_PAGE, INCREASE_CURRENT_PAGE,
-  DECREASE_CURRENT_PAGE, UPDATE_IS_LOADING_DATA,
+  DECREASE_CURRENT_PAGE, UPDATE_IS_LOADING_DATA, UPDATE_TOTAL_PAGES_COUNT,
 } from '../storeConsts.js';
 
 export const updateActiveIndex = payload => ({
@@ -25,5 +25,10 @@ export const decreaseCurrentPage = payload => ({
 
 export const updateIsLoadingData = payload => ({
   type: UPDATE_IS_LOADING_DATA,
+  payload, 
+});
+
+export const updateTotalPagesCount = payload => ({
+  type: UPDATE_TOTAL_PAGES_COUNT,
   payload, 
 });

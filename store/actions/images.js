@@ -1,7 +1,7 @@
 import { APPEND_IMAGES, PREPEND_IMAGES, UPDATE_IMAGES } from '../storeConsts.js';
 import { getRecentPhotosXHR } from '../../api.js';
 import { getCurrentPage } from '../reducers/main.js';
-import { updateIsLoadingData } from './main.js';
+import { updateIsLoadingData, updateTotalPagesCount } from './main.js';
 
 export const appendImages = payload => ({
   type: APPEND_IMAGES,
@@ -23,6 +23,7 @@ export const getImagesData = (addInEnd, initLoading) => async (dispatch, getStat
     const page = getCurrentPage(getState());
     dispatch(updateIsLoadingData(true));
     const data = await getRecentPhotosXHR(page, initLoading);
+    dispatch(updateTotalPagesCount(data.photos.pages));
     if (addInEnd) {
       dispatch(appendImages(data.photos.photo.map(photoObj => photoObj.url_q)));
     } else {

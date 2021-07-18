@@ -4,7 +4,7 @@ import store from '../store/index.js';
 import { UP, DOWN, RIGHT, LEFT, PER_ROW, ROW_HEIGHT, IMAGES_COUNT } from '../constants.js';
 import {
   getActiveIndex, getActiveRow, getCurrentPage,
-  getIsLoadingData,
+  getIsLoadingData, getTotalPagesCount,
 } from '../store/reducers/main.js';
 import { getImages, getImagesRowCount } from '../store/reducers/images.js';
 import { updateActiveIndex, increaseCurrentPage, decreaseCurrentPage } from '../store/actions/main.js';
@@ -59,6 +59,10 @@ export default class App {
     return getCurrentPage(store.getState());
   }
 
+  get totalPagesCount() {
+    return getTotalPagesCount(store.getState());
+  }
+
   shouldRerender() {
     if (store.getState().images && this.images) {
       return getImages(store.getState()) !== this.images;
@@ -101,7 +105,8 @@ export default class App {
     this.activeIndex += PER_ROW;
     this.scrollCounter++;
     this.scroll();
-    if (this.activeRow >= this.rowCount - 2 && !this.isLoadingData) {
+
+    if (this.activeRow >= this.rowCount - 2 && !this.isLoadingData && this.totalPagesCount > this.currentPage ) {
       store.dispatch(increaseCurrentPage());
       store.dispatch(updateImages(this.images.slice(this.images.length - PER_ROW * 2)));
       store.dispatch(getImagesData(true));
