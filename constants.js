@@ -10,3 +10,4 @@ export const RIGHT = 'RIGHT';
 export const LEFT = 'LEFT';
 
 export const ROW_HEIGHT = 360;
+export const IMAGES_COUNT = 50;

@@ -1,4 +1,7 @@
-import { UPDATE_ACTIVE_INDEX, UPDATE_CURRENT_PAGE, INCREASE_CURRENT_PAGE } from '../storeConsts.js';
+import {
+  UPDATE_ACTIVE_INDEX, UPDATE_CURRENT_PAGE, INCREASE_CURRENT_PAGE,
+  DECREASE_CURRENT_PAGE, UPDATE_IS_LOADING_DATA,
+} from '../storeConsts.js';
 
 export const updateActiveIndex = payload => ({
   type: UPDATE_ACTIVE_INDEX,
@@ -12,5 +15,15 @@ export const updateCurrentPage = payload => ({
 
 export const increaseCurrentPage = payload => ({
   type: INCREASE_CURRENT_PAGE,
+  payload, 
+});
+
+export const decreaseCurrentPage = payload => ({
+  type: DECREASE_CURRENT_PAGE,
+  payload, 
+});
+
+export const updateIsLoadingData = payload => ({
+  type: UPDATE_IS_LOADING_DATA,
   payload, 
 });

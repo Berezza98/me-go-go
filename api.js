@@ -15,7 +15,6 @@ export async function getRecentPhotos(page, isInitLoading = false) {
 
   const request = await fetch(url);
   const json = await request.json();
-  console.log(json);
 }
 
 export function getRecentPhotosXHR(page, isInitLoading = false) {

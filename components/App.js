@@ -1,22 +1,39 @@
 import ImageContainer from './ImageContainer.js';
 import Controller from '../utils/Controller.js';
 import store from '../store/index.js';
-import { UP, DOWN, RIGHT, LEFT, PER_ROW, ROW_HEIGHT } from '../constants.js';
-import { getActiveIndex, getActiveRow } from '../store/reducers/main.js';
+import { UP, DOWN, RIGHT, LEFT, PER_ROW, ROW_HEIGHT, IMAGES_COUNT } from '../constants.js';
+import {
+  getActiveIndex, getActiveRow, getCurrentPage,
+  getIsLoadingData,
+} from '../store/reducers/main.js';
 import { getImages, getImagesRowCount } from '../store/reducers/images.js';
-import { updateActiveIndex, increaseCurrentPage } from '../store/actions/main.js';
-import { getImagesData } from '../store/actions/images.js';
+import { updateActiveIndex, increaseCurrentPage, decreaseCurrentPage } from '../store/actions/main.js';
+import { getImagesData, updateImages } from '../store/actions/images.js';
 
 export default class App {
   constructor(root) {
     this.root = root;
     this.el = null;
     this.controller = new Controller();
-    this.scrollCounter = 0;
+    this._scrollCounter = 0;
 
     store.subscribe(this.updateFromStore.bind(this));
-    store.dispatch(getImagesData());
+    store.dispatch(getImagesData(true, true));
     this.addControllerHandlers();
+  }
+
+  get isLoadingData() {
+    return getIsLoadingData(store.getState());
+  }
+
+  get scrollCounter() {
+    return this._scrollCounter;
+  }
+
+  set scrollCounter(value) {
+    if (value >= 0) {
+      this._scrollCounter = value;
+    }
   }
 
   get activeIndex() {
@@ -36,6 +53,10 @@ export default class App {
 
   get rowCount() {
     return getImagesRowCount(store.getState());
+  }
+
+  get currentPage() {
+    return getCurrentPage(store.getState());
   }
 
   shouldRerender() {
@@ -73,23 +94,38 @@ export default class App {
   }
 
   handleDown() {
-    if (this.images[this.activeIndex + PER_ROW] !== undefined) {
-      this.activeIndex += PER_ROW;
-      this.scrollCounter++;
-      this.scroll();
+    if (!this.images[this.activeIndex + PER_ROW]) {
+      return;
+    }
 
-      if (this.activeRow >= this.rowCount - 2) {
-        store.dispatch(increaseCurrentPage());
-        store.dispatch(getImagesData());
-      }
+    this.activeIndex += PER_ROW;
+    this.scrollCounter++;
+    this.scroll();
+    if (this.activeRow >= this.rowCount - 2 && !this.isLoadingData) {
+      store.dispatch(increaseCurrentPage());
+      store.dispatch(updateImages(this.images.slice(this.images.length - PER_ROW * 2)));
+      store.dispatch(getImagesData(true));
+      this.activeIndex = this.activeIndex % PER_ROW;
+      this.scrollCounter = this.activeRow;
+      this.scroll(true);
     }
   }
 
   handleUp() {
-    if (this.images[this.activeIndex - PER_ROW] !== undefined) {
-      this.activeIndex -= PER_ROW;
-      this.scrollCounter--;
-      this.scroll();
+    if (!this.images[this.activeIndex - PER_ROW] && this.currentPage === 1) {
+      return;
+    }
+
+    this.activeIndex -= PER_ROW;
+    this.scrollCounter--;
+    this.scroll();
+    if (this.activeRow < 1 && this.currentPage > 1 && !this.isLoadingData) {
+      store.dispatch(decreaseCurrentPage());
+      store.dispatch(updateImages(this.images.slice(0, PER_ROW * 2)));
+      store.dispatch(getImagesData(false));
+      this.activeIndex = IMAGES_COUNT - (PER_ROW * 2) + this.activeIndex;
+      this.scrollCounter = this.activeRow;
+      this.scroll(true);
     }
   }
 

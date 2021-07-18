@@ -1,4 +1,4 @@
-import { UPDATE_IMAGES } from '../storeConsts.js';
+import { APPEND_IMAGES, PREPEND_IMAGES, UPDATE_IMAGES } from '../storeConsts.js';
 import { PER_ROW } from '../../constants.js';
 
 const initState = {
@@ -7,10 +7,20 @@ const initState = {
 
 function reducer(state = initState, { type, payload }) {
   switch (type) {
-    case UPDATE_IMAGES:
+    case APPEND_IMAGES:
       return {
         ...state,
         data: [...state.data, ...payload]
+      }
+    case PREPEND_IMAGES:
+      return {
+        ...state,
+        data: [...payload, ...state.data]
+      }
+    case UPDATE_IMAGES:
+      return {
+        ...state,
+        data: payload
       }
     default:
       return state;

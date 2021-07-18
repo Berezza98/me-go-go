@@ -51,6 +51,9 @@ export default class ImageContainer {
     this.image.onload = () => {
       this.isLoading = false;
     };
+    this.image.onerror = () => {
+      this.isLoading = false;
+    };
     this.image.src = this.url;
   }
 
