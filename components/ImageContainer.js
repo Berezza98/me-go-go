@@ -1,6 +1,5 @@
 import store from '../store/index.js';
 import { getActiveIndex } from '../store/reducers/main.js';
-import { removeChildren } from '../utils/index.js';
 import ImageLoader from './ImageLoader.js';
 
 export default class ImageContainer {
@@ -48,13 +47,15 @@ export default class ImageContainer {
 
   downloadImage() {
     this.image = new Image();
-    this.image.onload = () => {
-      this.isLoading = false;
-    };
-    this.image.onerror = () => {
-      this.isLoading = false;
-    };
+    this.image.onload = this.downloadHandler.bind(this);
+    this.image.onerror = this.downloadHandler.bind(this);
     this.image.src = this.url;
+  }
+
+  downloadHandler() {
+    this.isLoading = false;
+    this.loader.el.remove();
+    this.render();
   }
 
   addActiveStyles() {
@@ -75,10 +76,10 @@ export default class ImageContainer {
       this.el.classList.add('image-wrapper');
       this.parent.append(this.el);
     }
-    removeChildren(this.el);
 
     if (this.isLoading) {
-      new ImageLoader(this.el).render();
+      this.loader = new ImageLoader(this.el);
+      this.loader.render();
     } else {
       this.el.append(this.image);
     }
